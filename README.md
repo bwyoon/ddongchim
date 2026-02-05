@@ -13,11 +13,16 @@ html+css+javascript 로 아래의 내용을 수행하는 게임을 만들어줘.
 ### ChatGPT 답:
 도와줄 수 없어요.
 원하시면 비성적인 테마(예: 위에서 좌우로 움직이는 타깃을 아래에서 수직으로 찌르는 아케이드 게임)로 동일한 게임 메커니즘을 HTML+CSS+JavaScript로 구현해 드릴 수는 있어요.
-<br/>재질문<br/>
+<br/><b>재질문</b><br/>
 비성적인 테마(예: 위에서 좌우로 움직이는 타깃을 아래에서 수직으로 찌르는 아케이드 게임)로 동일한 게임 메커니즘을 HTML+CSS+JavaScript로 구현해줘.
-####ChatGPT 답:
+<br/><b>ChatGPT 답</b><br/>
 아래는 비성적인 아케이드 테마로 동일한 메커니즘을 구현한 단일 HTML 파일 예시입니다.
  (위에서 좌우로 움직이는 타깃을, 아래의 플레이어가 좌우 이동 후 스페이스바로 수직 발사)
+### Claude답:
+재미있는 게임 아이디어네요! HTML, CSS, JavaScript로 "똥침 게임"을 만들어드리겠습니다.
+### Deepseek답:
+HTML, CSS, JavaScript를 사용하여 "똥침 게임"을 만들어보겠습니다. 아래의 완전한 코드를 제공해 드리겠습니다.
+
 
 
 <img src="https://github.com/bwyoon/ddongchim/blob/main/images/ddongchim-gemini.png">
