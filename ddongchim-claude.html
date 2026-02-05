@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>똥침 게임</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.3);
+            width: 800px;
+            max-width: 95vw;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .stat-item {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .score {
+            color: #4CAF50;
+        }
+
+        .miss {
+            color: #f44336;
+        }
+
+        .time {
+            color: #2196F3;
+        }
+
+        .game-area {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 3px solid #667eea;
+        }
+
+        .butt {
+            position: absolute;
+            width: 120px;
+            height: 100px;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: left 0.05s linear;
+        }
+
+        .butt-cheek {
+            position: absolute;
+            width: 55px;
+            height: 80px;
+            background: #FFD7B5;
+            border-radius: 50%;
+            border: 3px solid #E5B896;
+        }
+
+        .butt-left {
+            left: 0;
+            border-top-left-radius: 60% 50%;
+            border-bottom-left-radius: 60% 50%;
+        }
+
+        .butt-right {
+            right: 0;
+            border-top-right-radius: 60% 50%;
+            border-bottom-right-radius: 60% 50%;
+        }
+
+        .butt-crack {
+            position: absolute;
+            width: 4px;
+            height: 60px;
+            background: #D4A373;
+            left: 50%;
+            top: 10px;
+            transform: translateX(-50%);
+        }
+
+        .target {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #8B4513;
+            border-radius: 50%;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .hand {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 100px;
+            transition: bottom 0.2s ease-in-out, left 0.1s;
+        }
+
+        .hand.attacking {
+            bottom: 400px !important;
+        }
+
+        .palm {
+            position: absolute;
+            width: 60px;
+            height: 40px;
+            background: #FFDAB9;
+            border: 2px solid #DEB887;
+            border-radius: 50% 50% 30% 30%;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .fingers {
+            position: absolute;
+            width: 30px;
+            height: 60px;
+            background: #FFDAB9;
+            border: 2px solid #DEB887;
+            border-radius: 40% 40% 0 0;
+            bottom: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .finger-tip {
+            position: absolute;
+            width: 20px;
+            height: 30px;
+            background: #FFE4C4;
+            border: 2px solid #DEB887;
+            border-radius: 50% 50% 0 0;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .controls {
+            margin-top: 20px;
+            text-align: center;
+            color: #666;
+        }
+
+        .controls p {
+            margin: 5px 0;
+            font-size: 1.1em;
+        }
+
+        .difficulty {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .difficulty label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .difficulty select {
+            padding: 8px 15px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 2px solid #667eea;
+            cursor: pointer;
+        }
+
+        .start-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 40px;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: white;
+            background: #667eea;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .start-btn:hover {
+            background: #764ba2;
+        }
+
+        .start-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .hit-effect {
+            position: absolute;
+            font-size: 2em;
+            font-weight: bold;
+            animation: popup 0.5s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes popup {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            display: none;
+            z-index: 100;
+        }
+
+        .game-over h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .game-over p {
+            font-size: 1.3em;
+            margin: 10px 0;
+        }
+
+        .final-score {
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1>🎯 똥침 게임 🎯</h1>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item score">득점: <span id="score">0</span></div>
+            <div class="stat-item miss">실점: <span id="miss">0</span></div>
+            <div class="stat-item time">시간: <span id="time">30</span>초</div>
+        </div>
+
+        <div class="difficulty">
+            <label for="difficulty-select">난이도:</label>
+            <select id="difficulty-select">
+                <option value="easy">쉬움 (느림)</option>
+                <option value="normal" selected>보통</option>
+                <option value="hard">어려움 (빠름)</option>
+                <option value="expert">전문가 (매우 빠름)</option>
+            </select>
+        </div>
+
+        <button class="start-btn" id="start-btn">게임 시작</button>
+
+        <div class="game-area" id="game-area">
+            <div class="butt" id="butt">
+                <div class="butt-cheek butt-left"></div>
+                <div class="butt-cheek butt-right"></div>
+                <div class="butt-crack"></div>
+                <div class="target" id="target"></div>
+            </div>
+
+            <div class="hand" id="hand">
+                <div class="fingers">
+                    <div class="finger-tip"></div>
+                </div>
+                <div class="palm"></div>
+            </div>
+
+            <div class="game-over" id="game-over">
+                <h2>게임 종료!</h2>
+                <p>득점: <span class="final-score" id="final-score">0</span></p>
+                <p>실점: <span id="final-miss">0</span></p>
+                <button class="start-btn" onclick="location.reload()">다시 하기</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <p>⬅️ ➡️ 방향키로 좌우 이동</p>
+            <p>스페이스바로 똥침 공격!</p>
+        </div>
+    </div>
+
+    <script>
+        const gameArea = document.getElementById('game-area');
+        const butt = document.getElementById('butt');
+        const hand = document.getElementById('hand');
+        const target = document.getElementById('target');
+        const scoreEl = document.getElementById('score');
+        const missEl = document.getElementById('miss');
+        const timeEl = document.getElementById('time');
+        const startBtn = document.getElementById('start-btn');
+        const difficultySelect = document.getElementById('difficulty-select');
+        const gameOverEl = document.getElementById('game-over');
+        const finalScoreEl = document.getElementById('final-score');
+        const finalMissEl = document.getElementById('final-miss');
+
+        let score = 0;
+        let miss = 0;
+        let timeLeft = 30;
+        let gameRunning = false;
+        let handPosition = 50; // percentage
+        let buttPosition = 50;
+        let buttDirection = 1;
+        let isAttacking = false;
+        let buttSpeed = 2;
+        let moveInterval;
+        let timerInterval;
+
+        const difficulties = {
+            easy: 1.5,
+            normal: 2.5,
+            hard: 4,
+            expert: 6
+        };
+
+        // 키보드 입력 처리
+        document.addEventListener('keydown', (e) => {
+            if (!gameRunning) return;
+
+            if (e.key === 'ArrowLeft') {
+                handPosition = Math.max(10, handPosition - 3);
+                updateHandPosition();
+            } else if (e.key === 'ArrowRight') {
+                handPosition = Math.min(90, handPosition + 3);
+                updateHandPosition();
+            } else if (e.key === ' ' && !isAttacking) {
+                e.preventDefault();
+                attack();
+            }
+        });
+
+        function updateHandPosition() {
+            hand.style.left = handPosition + '%';
+        }
+
+        function updateButtPosition() {
+            butt.style.left = buttPosition + '%';
+        }
+
+        function moveButt() {
+            buttPosition += buttDirection * buttSpeed;
+
+            if (buttPosition >= 85 || buttPosition <= 15) {
+                buttDirection *= -1;
+            }
+
+            updateButtPosition();
+        }
+
+        function attack() {
+            isAttacking = true;
+            hand.classList.add('attacking');
+
+            // 0.2초 후 충돌 검사
+            setTimeout(() => {
+                checkHit();
+                
+                // 0.2초 후 원위치
+                setTimeout(() => {
+                    hand.classList.remove('attacking');
+                    isAttacking = false;
+                }, 200);
+            }, 200);
+        }
+
+        function checkHit() {
+            const handRect = hand.getBoundingClientRect();
+            const targetRect = target.getBoundingClientRect();
+
+            const handCenter = handRect.left + handRect.width / 2;
+            const targetCenter = targetRect.left + targetRect.width / 2;
+            const distance = Math.abs(handCenter - targetCenter);
+
+            const hit = distance < 40;
+
+            if (hit) {
+                score++;
+                scoreEl.textContent = score;
+                showEffect('👍 성공!', '#4CAF50');
+                
+                // 진동 효과 (지원되는 경우)
+                if (navigator.vibrate) {
+                    navigator.vibrate(100);
+                }
+            } else {
+                miss++;
+                missEl.textContent = miss;
+                showEffect('❌ 실패!', '#f44336');
+            }
+        }
+
+        function showEffect(text, color) {
+            const effect = document.createElement('div');
+            effect.className = 'hit-effect';
+            effect.textContent = text;
+            effect.style.color = color;
+            effect.style.left = handPosition + '%';
+            effect.style.top = '40%';
+            gameArea.appendChild(effect);
+
+            setTimeout(() => {
+                effect.remove();
+            }, 500);
+        }
+
+        function startGame() {
+            score = 0;
+            miss = 0;
+            timeLeft = 30;
+            gameRunning = true;
+            handPosition = 50;
+            buttPosition = 50;
+            buttDirection = 1;
+
+            scoreEl.textContent = score;
+            missEl.textContent = miss;
+            timeEl.textContent = timeLeft;
+
+            startBtn.disabled = true;
+            difficultySelect.disabled = true;
+
+            buttSpeed = difficulties[difficultySelect.value];
+
+            // 엉덩이 움직임
+            moveInterval = setInterval(moveButt, 50);
+
+            // 타이머
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timeEl.textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            gameRunning = false;
+            clearInterval(moveInterval);
+            clearInterval(timerInterval);
+
+            finalScoreEl.textContent = score;
+            finalMissEl.textContent = miss;
+            gameOverEl.style.display = 'block';
+        }
+
+        startBtn.addEventListener('click', startGame);
+    </script>
+</body>
+</html>

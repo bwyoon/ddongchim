@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>똥침 게임</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        #game-container {
+            position: relative;
+            width: 600px;
+            height: 800px;
+            background-color: #fff;
+            border: 2px solid #000;
+            overflow: hidden;
+        }
+        #butt {
+            position: absolute;
+            top: 50px;
+            left: 250px;
+            width: 100px;
+            height: 100px;
+            background-color: #ffcc99;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 100px;
+            font-size: 20px;
+        }
+        #hand {
+            position: absolute;
+            bottom: 50px;
+            left: 250px;
+            width: 50px;
+            height: 50px;
+            background-color: #ff9999;
+            text-align: center;
+            line-height: 50px;
+            font-size: 20px;
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+        }
+        #time {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+        }
+        #difficulty {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="butt">🍑</div>
+        <div id="hand">👆</div>
+        <div id="score">점수: 0</div>
+        <div id="time">시간: 60</div>
+        <div id="difficulty">
+            <label>난이도:</label>
+            <select id="diff-select">
+                <option value="1">쉬움</option>
+                <option value="2" selected>보통</option>
+                <option value="3">어려움</option>
+            </select>
+            <button id="start-btn">시작</button>
+        </div>
+    </div>
+
+    <script>
+        const gameContainer = document.getElementById('game-container');
+        const butt = document.getElementById('butt');
+        const hand = document.getElementById('hand');
+        const scoreDisplay = document.getElementById('score');
+        const timeDisplay = document.getElementById('time');
+        const diffSelect = document.getElementById('diff-select');
+        const startBtn = document.getElementById('start-btn');
+
+        let score = 0;
+        let timeLeft = 60;
+        let buttSpeed = 2; // 기본 보통 난이도
+        let buttDirection = 1; // 1: 오른쪽, -1: 왼쪽
+        let handPosition = 250;
+        let isAttacking = false;
+        let gameInterval;
+        let timerInterval;
+        let isGameRunning = false;
+
+        // 난이도 설정
+        function setDifficulty() {
+            const diff = parseInt(diffSelect.value);
+            switch (diff) {
+                case 1: buttSpeed = 1; break; // 쉬움
+                case 2: buttSpeed = 2; break; // 보통
+                case 3: buttSpeed = 3; break; // 어려움
+            }
+        }
+
+        // 게임 시작
+        function startGame() {
+            if (isGameRunning) return;
+            setDifficulty();
+            score = 0;
+            timeLeft = 60;
+            handPosition = 250;
+            butt.style.left = '250px';
+            buttDirection = 1;
+            updateScore();
+            updateTime();
+            isGameRunning = true;
+            gameInterval = setInterval(updateGame, 16); // 약 60fps
+            timerInterval = setInterval(updateTimer, 1000);
+            startBtn.disabled = true;
+        }
+
+        // 타이머 업데이트
+        function updateTimer() {
+            timeLeft--;
+            updateTime();
+            if (timeLeft <= 0) {
+                endGame();
+            }
+        }
+
+        // 게임 업데이트
+        function updateGame() {
+            // 엉덩이 움직임
+            let buttLeft = parseInt(butt.style.left);
+            buttLeft += buttSpeed * buttDirection;
+            if (buttLeft <= 0 || buttLeft >= 500) {
+                buttDirection *= -1; // 방향 반전
+            }
+            butt.style.left = buttLeft + 'px';
+
+            // 손 움직임 (공격 중 아님)
+            if (!isAttacking) {
+                hand.style.left = handPosition + 'px';
+            }
+        }
+
+        // 공격 로직
+        function attack() {
+            if (isAttacking || !isGameRunning) return;
+            isAttacking = true;
+            const startY = parseInt(hand.style.bottom);
+            const targetY = parseInt(butt.style.top) + 100; // 엉덩이 아래쪽 가정
+            hand.style.transition = 'bottom 0.2s linear';
+            hand.style.bottom = targetY + 'px';
+
+            setTimeout(() => {
+                checkHit();
+                // 돌아오기
+                hand.style.transition = 'bottom 0.2s linear';
+                hand.style.bottom = '50px';
+                setTimeout(() => {
+                    isAttacking = false;
+                    hand.style.transition = '';
+                }, 200);
+            }, 200);
+        }
+
+        // 히트 체크
+        function checkHit() {
+            const handLeft = parseInt(hand.style.left);
+            const buttLeft = parseInt(butt.style.left);
+            const handWidth = 50;
+            const buttWidth = 100;
+
+            // 손가락이 엉덩이 범위 안에 있는지 (중앙 항문 가정)
+            const buttCenter = buttLeft + buttWidth / 2;
+            const handCenter = handLeft + handWidth / 2;
+            if (Math.abs(handCenter - buttCenter) < 20) { // 20px 이내 히트
+                score += 1;
+            } else {
+                score -= 1;
+            }
+            updateScore();
+        }
+
+        // 점수 업데이트
+        function updateScore() {
+            scoreDisplay.textContent = `점수: ${score}`;
+        }
+
+        // 시간 업데이트
+        function updateTime() {
+            timeDisplay.textContent = `시간: ${timeLeft}`;
+        }
+
+        // 게임 종료
+        function endGame() {
+            clearInterval(gameInterval);
+            clearInterval(timerInterval);
+            isGameRunning = false;
+            startBtn.disabled = false;
+            alert(`게임 종료! 최종 점수: ${score}`);
+        }
+
+        // 키 입력 처리
+        document.addEventListener('keydown', (e) => {
+            if (!isGameRunning) return;
+            if (e.key === 'ArrowLeft' && handPosition > 0) {
+                handPosition -= 10;
+            } else if (e.key === 'ArrowRight' && handPosition < 550) {
+                handPosition += 10;
+            } else if (e.key === ' ') {
+                attack();
+            }
+        });
+
+        startBtn.addEventListener('click', startGame);
+    </script>
+</body>
+</html>
